@@ -203,6 +203,25 @@ private:
     void (*mActiveSensingCallback)(void);
     void (*mSystemResetCallback)(void);
 
+    bool mNoteOffFilter;             
+    bool mNoteOnFilter;              
+    bool mAfterTouchPolyFilter;      
+    bool mControlChangeFilter;       
+    bool mProgramChangeFilter;       
+    bool mAfterTouchChannelFilter;   
+    bool mPitchBendFilter;           
+    bool mSystemExclusiveFilter;     
+    bool mTimeCodeQuarterFrameFilter;
+    bool mSongPositionFilter;        
+    bool mSongSelectFilter;          
+    bool mTuneRequestFilter;         
+    bool mClockFilter;               
+    bool mStartFilter;               
+    bool mContinueFilter;            
+    bool mStopFilter;                
+    bool mActiveSensingFilter;       
+    bool mSystemResetFilter;         
+
     // -------------------------------------------------------------------------
     // MIDI Soft Thru
 
@@ -213,6 +232,8 @@ public:
     inline void turnThruOn(Thru::Mode inThruFilterMode = Thru::Full);
     inline void turnThruOff();
     inline void setThruFilterMode(Thru::Mode inThruFilterMode);
+    inline void setThruMessageFilter(MidiType messageType);
+    inline bool isThruFilteredMessage(MidiType messageType);
 
 private:
     void thruFilter(byte inChannel);

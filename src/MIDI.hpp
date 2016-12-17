@@ -61,6 +61,26 @@ inline MidiInterface<SerialPort, Settings>::MidiInterface(SerialPort& inSerial)
     mStopCallback                   = 0;
     mActiveSensingCallback          = 0;
     mSystemResetCallback            = 0;
+
+    // Thru Filters
+    mNoteOffFilter                = false;
+    mNoteOnFilter                 = false;
+    mAfterTouchPolyFilter         = false;
+    mControlChangeFilter          = false;
+    mProgramChangeFilter          = false;
+    mAfterTouchChannelFilter      = false;
+    mPitchBendFilter              = false;
+    mSystemExclusiveFilter        = false;
+    mTimeCodeQuarterFrameFilter   = false;
+    mSongPositionFilter           = false;
+    mSongSelectFilter             = false;
+    mTuneRequestFilter            = false;
+    mClockFilter                  = false;
+    mStartFilter                  = false;
+    mContinueFilter               = false;
+    mStopFilter                   = false;
+    mActiveSensingFilter          = false;
+    mSystemResetFilter            = false;
 }
 
 /*! \brief Destructor for MidiInterface.
@@ -1256,6 +1276,63 @@ inline void MidiInterface<SerialPort, Settings>::setThruFilterMode(Thru::Mode in
 }
 
 template<class SerialPort, class Settings>
+inline void MidiInterface<SerialPort, Settings>::setThruMessageFilter(MidiType messageType)
+{
+    switch (messageType)
+    {
+        case NoteOff:               mNoteOffFilter                = true; break;
+        case NoteOn:                mNoteOnFilter                 = true; break;
+        case AfterTouchPoly:        mAfterTouchPolyFilter         = true; break;
+        case ControlChange:         mControlChangeFilter          = true; break;
+        case ProgramChange:         mProgramChangeFilter          = true; break;
+        case AfterTouchChannel:     mAfterTouchChannelFilter      = true; break;
+        case PitchBend:             mPitchBendFilter              = true; break;
+        case SystemExclusive:       mSystemExclusiveFilter        = true; break;
+        case TimeCodeQuarterFrame:  mTimeCodeQuarterFrameFilter   = true; break;
+        case SongPosition:          mSongPositionFilter           = true; break;
+        case SongSelect:            mSongSelectFilter             = true; break;
+        case TuneRequest:           mTuneRequestFilter            = true; break;
+        case Clock:                 mClockFilter                  = true; break;
+        case Start:                 mStartFilter                  = true; break;
+        case Continue:              mContinueFilter               = true; break;
+        case Stop:                  mStopFilter                   = true; break;
+        case ActiveSensing:         mActiveSensingFilter          = true; break;
+        case SystemReset:           mSystemResetFilter            = true; break;
+        default:
+            break;
+    }
+}
+
+template<class SerialPort, class Settings>
+inline bool MidiInterface<SerialPort, Settings>::isThruFilteredMessage(MidiType messageType)
+{
+    switch (messageType)
+    {
+        case NoteOff:               return mNoteOffFilter;                break;
+        case NoteOn:                return mNoteOnFilter;                 break;
+        case AfterTouchPoly:        return mAfterTouchPolyFilter;         break;
+        case ControlChange:         return mControlChangeFilter;          break;
+        case ProgramChange:         return mProgramChangeFilter;          break;
+        case AfterTouchChannel:     return mAfterTouchChannelFilter;      break;
+        case PitchBend:             return mPitchBendFilter;              break;
+        case SystemExclusive:       return mSystemExclusiveFilter;        break;
+        case TimeCodeQuarterFrame:  return mTimeCodeQuarterFrameFilter;   break;
+        case SongPosition:          return mSongPositionFilter;           break;
+        case SongSelect:            return mSongSelectFilter;             break;
+        case TuneRequest:           return mTuneRequestFilter;            break;
+        case Clock:                 return mClockFilter;                  break;
+        case Start:                 return mStartFilter;                  break;
+        case Continue:              return mContinueFilter;               break;
+        case Stop:                  return mStopFilter;                   break;
+        case ActiveSensing:         return mActiveSensingFilter;          break;
+        case SystemReset:           return mSystemResetFilter;            break;
+        default:
+            return false;
+            break;
+    }
+}
+
+template<class SerialPort, class Settings>
 inline Thru::Mode MidiInterface<SerialPort, Settings>::getFilterMode() const
 {
     return mThruFilterMode;
@@ -1294,6 +1371,9 @@ void MidiInterface<SerialPort, Settings>::thruFilter(Channel inChannel)
 {
     // If the feature is disabled, don't do anything.
     if (!mThruActivated || (mThruFilterMode == Thru::Off))
+        return;
+
+    if (isThruFilteredMessage(mMessage.type))
         return;
 
     // First, check if the received message is Channel
